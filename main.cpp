@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd P,N;
   {
     Eigen::MatrixXd D;
-    std::vector<std::vector<double> > vD;
+    std::vector<std::vector<double>> vD;
     std::string line;
     std::fstream in;
     in.open(argc>1?argv[1]:"../data/hand.pwn");

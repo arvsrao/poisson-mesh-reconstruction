@@ -31,6 +31,8 @@
 *.un~
 *.swo
 *.swp
+.idea/
+cmake-build-debug/
 build/*
 *.DS_Store
 solution/*.cpp
