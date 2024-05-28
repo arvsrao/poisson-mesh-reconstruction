@@ -13,10 +13,13 @@
 //     matrix: G = [Dx;Dy;Dz]
 //
 // See also: fd_partial_derivative.h
+
+using SparseMatrixType = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+
 void fd_grad(
   const int nx,
   const int ny,
   const int nz,
   const double h,
-  Eigen::SparseMatrix<double> & G);
+  SparseMatrixType& G);
 #endif

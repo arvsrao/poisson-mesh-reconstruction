@@ -1,6 +1,11 @@
 #include "poisson_surface_reconstruction.h"
+#include "fd_grad.h"
+#include "fd_interpolate.h"
 #include <igl/copyleft/marching_cubes.h>
+#include <Eigen/Sparse>
 #include <algorithm>
+
+using SparseMatrixType = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
 void poisson_surface_reconstruction(
     const Eigen::MatrixXd & P,
@@ -45,10 +50,33 @@ void poisson_surface_reconstruction(
   Eigen::VectorXd g = Eigen::VectorXd::Zero(nx*ny*nz);
 
   /// NOTE: The provided FD grid is a regular grid not an adaptive grid.
+    SparseMatrixType G((nx-1)*ny*nz + nx*(ny-1)*nz + nx*ny*(nz-1), nx*ny*nz),
+          W(n, nx*ny*nz),
+          Wx(n, (nx-1)*ny*nz),
+          Wy(n, nx*(ny-1)*nz),
+          Wz(n, nx*ny*(nz-1));
 
-  ////////////////////////////////////////////////////////////////////////////
-  // Add your code here
-  ////////////////////////////////////////////////////////////////////////////
+  fd_grad(nx, ny, nz, h, G);
+  fd_interpolate(nx, ny, nz, h,corner, P, W);
+  fd_interpolate(nx-1, ny, nz, h,corner + h*Eigen::RowVector3d(0.5,0,0), P, Wx);
+  fd_interpolate(nx, ny-1, nz, h,corner + h*Eigen::RowVector3d(0,0.5,0), P, Wy);
+  fd_interpolate(nx, ny, nz-1, h,corner + h*Eigen::RowVector3d(0,0,0.5), P, Wz);
+
+  Eigen::MatrixXd vx, vy, vz;
+  vx = Wx.transpose() * N.col(0);
+  vy = Wy.transpose() * N.col(1);
+  vz = Wz.transpose() * N.col(2);
+
+  Eigen::MatrixXd v((nx-1)*ny*nz + nx*(ny-1)*nz + nx*ny*(nz-1), 1);
+  v << vx, vy, vz;
+
+  // use conjugate gradient to solve for g, where Ag = b and A = G^T * G and b = G^T * v
+  Eigen::BiCGSTAB<SparseMatrixType> solver(G.transpose() * G);
+  g = solver.solve(G.transpose() * v);
+
+  // compute a "good" iso-value a suggested by As suggested in [Kazhdan et al. 2006].
+  double sigma = (W * g).sum() / (double) n;
+  g -= sigma * Eigen::VectorXd::Ones(nx*ny*nz);
 
   ////////////////////////////////////////////////////////////////////////////
   // Run black box algorithm to compute mesh from implicit function: this

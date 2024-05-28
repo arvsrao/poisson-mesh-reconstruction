@@ -14,7 +14,9 @@
 //   P  n by 3 list of query point locations
 // Outputs:
 //   W  n by (nx*ny*nz) sparse weights matrix
-//
+
+using SparseMatrixType = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+
 void fd_interpolate(
   const int nx,
   const int ny,
@@ -22,5 +24,5 @@ void fd_interpolate(
   const double h,
   const Eigen::RowVector3d & corner,
   const Eigen::MatrixXd & P,
-  Eigen::SparseMatrix<double> & W);
+  SparseMatrixType& W);
 #endif
