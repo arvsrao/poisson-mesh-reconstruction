@@ -1,6 +1,7 @@
 #ifndef POISSON_SURFACE_RECONSTRUCTION_H
 #define POISSON_SURFACE_RECONSTRUCTION_H
 #include <Eigen/Core>
+#include <Eigen/Sparse>
 
 // Takes input sample points P and input normals N 
 // and gives a watertight mesh using a simplified
@@ -13,6 +14,9 @@
 //   V  #V by 3 list of mesh vertex positions
 //   F  #F by 3 list of mesh triangle indinces into V
 //
+
+using SparseMatrixType = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+
 void poisson_surface_reconstruction(
     const Eigen::MatrixXd & P,
     const Eigen::MatrixXd & N,

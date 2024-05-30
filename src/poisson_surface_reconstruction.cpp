@@ -2,10 +2,7 @@
 #include "fd_grad.h"
 #include "fd_interpolate.h"
 #include <igl/copyleft/marching_cubes.h>
-#include <Eigen/Sparse>
 #include <algorithm>
-
-using SparseMatrixType = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
 void poisson_surface_reconstruction(
     const Eigen::MatrixXd & P,
